@@ -1113,4 +1113,19 @@ section {
 .appointment-info {
     color: var(--white);
 }
+/* Your normal desktop CSS goes above this */
+
+/* Mobile styles: This applies ONLY to screens narrower than 768 pixels (phones/small tablets) */
+@media (max-width: 768px) {
+  /* Example: If you have a two-column layout, make it one column */
+  .your-container-class {
+    display: block; 
+    width: 100%;
+  }
+  
+  /* Example: Make text a bit smaller so it fits */
+  h1 {
+    font-size: 24px;
+  }
+}
 
