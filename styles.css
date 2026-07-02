@@ -1116,16 +1116,137 @@ section {
 /* Your normal desktop CSS goes above this */
 
 /* Mobile styles: This applies ONLY to screens narrower than 768 pixels (phones/small tablets) */
-@media (max-width: 768px) {
-  /* Example: If you have a two-column layout, make it one column */
-  .your-container-class {
-    display: block; 
-    width: 100%;
-  }
-  
-  /* Example: Make text a bit smaller so it fits */
-  h1 {
-    font-size: 24px;
-  }
+/* ===================================
+   RESPONSIVE (Tablet & Mobile)
+=================================== */
+@media (max-width: 992px) {
+    /* --- General Adjustments --- */
+    html {
+        font-size: 15px;
+    }
+
+    section {
+        padding: 4rem 0;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    /* --- Header & Navbar (Hamburger Menu) --- */
+    .hamburger {
+        display: flex; /* Show hamburger on mobile */
+        z-index: 1001; 
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Start off-screen */
+        width: 100%;
+        height: 100vh;
+        background-color: var(--white);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        right: 0; /* Slide in when active */
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links a {
+        font-size: 1.5rem; /* Larger text for easier tapping */
+        font-weight: 600;
+        display: block;
+        padding: 1rem;
+        color: var(--text-dark);
+    }
+    
+    .nav-links .btn-appointment {
+        font-size: 1.2rem;
+        padding: 0.75rem 2rem;
+    }
+
+    /* --- Hero Section --- */
+    .hero {
+        min-height: auto;
+        padding-top: calc(var(--header-height) + 2rem);
+        text-align: center;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr; /* Stack hero content vertically */
+        gap: 2.5rem;
+        padding-bottom: 4rem;
+    }
+
+    .hero-text {
+        grid-row: 1; /* Ensure text is on top */
+    }
+    
+    .hero-desc, .hero-title {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .hero-badges, .hero-cta {
+        justify-content: center;
+    }
+
+    .image-frame {
+        width: 280px;
+        margin: 0 auto;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 grid on mobile */
+        gap: 1.5rem;
+    }
+    
+    .stat-item:not(:last-child) { border-left: none; }
+    .stat-item:nth-child(odd) { border-left: 1px solid rgba(255,255,255,0.15); }
+    .stat-item:nth-child(1), .stat-item:nth-child(2) { border-left: none; }
+
+
+    /* --- About Section --- */
+    .about-grid {
+        grid-template-columns: 1fr; /* Stack about content vertically */
+        gap: 2.5rem;
+    }
+
+    .about-image {
+        max-width: 350px;
+        margin: 0 auto;
+    }
+    
+    /* --- Other Sections --- */
+    .services-grid,
+    .insurance-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    
+    .gallery-grid { grid-template-columns: 1fr; }
+    .gallery-item--large { grid-column: span 1; }
+
+    .appointment-wrapper,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row { grid-template-columns: 1fr; }
+    .contact-map { height: 300px; }
 }
+
+
+
+
 

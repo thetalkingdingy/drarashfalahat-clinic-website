@@ -106,13 +106,7 @@
                 <h2 class="section-title">درباره دکتر فلاحت</h2>
                 <div class="section-divider"></div>
             </div>
-            <div class="about-grid">
-                <div class="about-image">
-                    <div class="about-img-wrapper">
-                        <img src="doc.jpg" alt="دکتر آرش فلاحت" loading="lazy">
-                        <div class="about-img-badge">
-                            <i class="fas fa-heart-pulse"></i>
-                            <span>فوق تخصص قلب</span>
+            
                         </div>
                     </div>
                 </div>
@@ -511,3 +505,21 @@
                         <li>
                             <i class="fas fa-clock"></i>
                             <span>شنبه تا چهارشنبه | ۱۶–۲۱</span>
+ <!-- ===== JAVASCRIPT FOR MOBILE MENU ===== -->
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        navLinks.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
