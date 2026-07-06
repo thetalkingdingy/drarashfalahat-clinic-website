@@ -378,10 +378,19 @@ animatedElements.forEach(el => {
 });
 
 // ===== COUNTER ANIMATION FOR STATS =====
-const statNumbers = document.querySelectorAll('.stat-item strong');
-
 const animateCounter = (element) => {
-    const target = parseInt(element.textContent.replace(/[^0-9]/g, ''));
+    // convert Persian digits to English
+    const toEn = s => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    // convert English digits back to Persian
+    const toFa = s => String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+    const original = element.textContent;
+    const hasPlus = original.includes('+');
+    const target = parseInt(toEn(original).replace(/[^0-9]/g, ''), 10);
+
+    // skip stats that aren't numbers (e.g. "هزاران")
+    if (isNaN(target)) return;
+
     const duration = 2000;
     const step = Math.ceil(target / (duration / 16));
     let current = 0;
@@ -389,13 +398,14 @@ const animateCounter = (element) => {
     const counter = setInterval(() => {
         current += step;
         if (current >= target) {
-            element.textContent = target + '+';
+            element.textContent = toFa(target) + (hasPlus ? '+' : '');
             clearInterval(counter);
         } else {
-            element.textContent = current + '+';
+            element.textContent = toFa(current) + (hasPlus ? '+' : '');
         }
     }, 16);
 };
+
 
 // فقط یک بار اجرا شود
 let statsAnimated = false;
