@@ -555,4 +555,226 @@ window.addEventListener('load', () => {
 if (window.history.replaceState) {
     window.history.replaceState(null, null, window.location.href);
 }
+/* ============================================================
+   سیستم نوبت‌دهی آنلاین - مطب قلب و عروق
+   booking.js
+   ============================================================ */
 
+/* ⚠️ مهم: بعد از ساختن Cloudflare Worker (پیام بعدی)،
+   آدرس آن را اینجا قرار دهید: */
+const WORKER_URL = "https://clinic-booking.thehunnterrr.workers.dev";
+// ================== تنظیمات ==================
+; // آدرس Worker خودتان
+const OFF_DAYS = [4, 5]; // پنج‌شنبه (4) و جمعه (5)
+const HOLIDAYS = []; // تعطیلات رسمی به میلادی، مثال: ['2026-07-10']
+
+// ================== عناصر صفحه ==================
+const dateStrip   = document.getElementById('date-strip');
+const timeSelect  = document.getElementById('time-select');
+const nameInput   = document.getElementById('patient-name');
+const phoneInput  = document.getElementById('patient-phone');
+const submitBtn   = document.getElementById('submit-btn');
+const spinner     = document.getElementById('spinner');
+const confirmBox  = document.getElementById('confirmation-box');
+const globalError = document.getElementById('global-error');
+
+let selectedDate = null;
+
+// ================== تبدیل ارقام فارسی/عربی به انگلیسی ==================
+function toEnglishDigits(str) {
+  const fa = '۰۱۲۳۴۵۶۷۸۹';
+  const ar = '٠١٢٣٤٥٦٧٨٩';
+  return str.replace(/[۰-۹٠-٩]/g, ch => {
+    let i = fa.indexOf(ch);
+    if (i === -1) i = ar.indexOf(ch);
+    return i.toString();
+  });
+}
+
+phoneInput.addEventListener('input', () => {
+  phoneInput.value = toEnglishDigits(phoneInput.value).replace(/[^\d]/g, '');
+});
+
+// ================== ساخت نوار ۷ روزه (تقویم جلالی) ==================
+function buildDateStrip() {
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+
+    const gregorianStr = d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+
+    const dayOfWeek = d.getDay(); // 4 = پنج‌شنبه، 5 = جمعه
+    const isOff = OFF_DAYS.includes(dayOfWeek) || HOLIDAYS.includes(gregorianStr);
+
+    const parts = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+      weekday: 'short', day: 'numeric', month: 'long'
+    }).formatToParts(d);
+
+    const weekday = parts.find(p => p.type === 'weekday')?.value || '';
+    const day     = parts.find(p => p.type === 'day')?.value || '';
+    const month   = parts.find(p => p.type === 'month')?.value || '';
+
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isOff ? ' off-day' : '');
+    card.dataset.date = gregorianStr;
+    card.innerHTML = `
+      <div class="weekday">${weekday}</div>
+      <div class="day-num">${day}</div>
+      <div class="month-name">${month}</div>
+    `;
+
+    if (!isOff) {
+      card.addEventListener('click', () => selectDate(card, gregorianStr));
+    }
+
+    dateStrip.appendChild(card);
+  }
+}
+
+// ================== انتخاب تاریخ ==================
+function selectDate(card, dateStr) {
+  document.querySelectorAll('.day-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedDate = dateStr;
+
+  timeSelect.disabled = false;
+  timeSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+  loadAvailableSlots(dateStr);
+}
+
+// ================== ساخت ساعت‌ها (۱۶:۰۰ تا ۲۱:۰۰) ==================
+function generateTimeSlots() {
+  const slots = [];
+  for (let h = 16; h <= 21; h++) {
+    slots.push(`${String(h).padStart(2, '0')}:00`);
+    if (h < 21) slots.push(`${String(h).padStart(2, '0')}:30`);
+  }
+  return slots; // آخرین نوبت: 21:00
+}
+
+// ================== دریافت نوبت‌های رزروشده از Worker ==================
+// پیدا کنید و به این شکل اصلاح کنید:
+async function loadAvailableSlots(dateStr) {
+  try {
+    const res = await fetch(`${WORKER_URL}/slots?date=${dateStr}`);
+    if (!res.ok) throw new Error('server');
+    const data = await res.json();
+    
+    // اصلاح شد: به جای data.slots از data.booked استفاده می‌کنیم
+    const booked = data.booked || []; 
+
+    timeSelect.innerHTML = '<option value="">ساعت را انتخاب کنید</option>';
+    generateTimeSlots().forEach(slot => {
+      const opt = document.createElement('option');
+      opt.value = slot;
+      const isBooked = booked.includes(slot);
+      opt.textContent = isBooked ? `${slot} — رزرو شده` : slot;
+      opt.disabled = isBooked;
+      timeSelect.appendChild(opt);
+    });
+  } catch (e) {
+    timeSelect.innerHTML = '<option value="">خطا در بارگذاری ساعت‌ها</option>';
+    showError('ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کنید.');
+  }
+}
+
+// ================== نمایش خطا و تأیید ==================
+function showError(msg) {
+  globalError.textContent = msg;
+  globalError.style.display = 'block';
+  confirmBox.style.display = 'none';
+}
+
+function hideError() {
+  globalError.style.display = 'none';
+}
+
+function showConfirmation(name, jalaliDate, time) {
+  confirmBox.innerHTML = `
+    <strong>✅ نوبت شما با موفقیت ثبت شد!</strong><br>
+    ${name} عزیز، نوبت شما برای <strong>${jalaliDate}</strong> ساعت <strong>${time}</strong> رزرو شد.
+  `;
+  confirmBox.style.display = 'block';
+}
+
+// ================== اعتبارسنجی ==================
+function validateForm() {
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+
+  if (name.length < 3) {
+    showError('لطفاً نام و نام خانوادگی را کامل وارد کنید.');
+    return false;
+  }
+  if (!/^09\d{9}$/.test(phone)) {
+    showError('شماره موبایل معتبر نیست. مثال: ۰۹۱۴۱۲۳۴۵۶۷');
+    return false;
+  }
+  if (!selectedDate) {
+    showError('لطفاً یک روز را انتخاب کنید.');
+    return false;
+  }
+  if (!timeSelect.value) {
+    showError('لطفاً ساعت نوبت را انتخاب کنید.');
+    return false;
+  }
+  return true;
+}
+
+// ================== ارسال فرم ==================
+// بخش کلیک روی دکمه ثبت نوبت را به این شکل تغییر دهید:
+submitBtn.addEventListener('click', async () => {
+  hideError();
+  if (!validateForm()) return;
+
+  submitBtn.disabled = true;
+  if (spinner) spinner.style.display = 'inline-block';
+
+  try {
+    const res = await fetch(`${WORKER_URL}/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: nameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        date: selectedDate,
+        time: timeSelect.value
+        // نیاز به ارسال dateFa از اینجا نیست، ورکر خودش آن را محاسبه می‌کند
+      })
+    });
+
+    const data = await res.json();
+
+    // اصلاح شد: به جای data.success از data.ok استفاده می‌کنیم
+    if (res.ok && data.ok) { 
+      const jalaliDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).format(new Date(selectedDate));
+
+      showConfirmation(nameInput.value.trim(), jalaliDate, timeSelect.value);
+
+      // پاک‌سازی فرم
+      nameInput.value = '';
+      phoneInput.value = '';
+      timeSelect.value = '';
+      loadAvailableSlots(selectedDate); // به‌روزرسانی ساعت‌ها
+    } else if (data.error === 'slot_taken') {
+      showError('متأسفانه این نوبت همین الان رزرو شد. لطفاً ساعت دیگری انتخاب کنید.');
+      loadAvailableSlots(selectedDate);
+    } else {
+      showError('خطایی رخ داد. لطفاً دوباره تلاش کنید.');
+    }
+  } catch (e) {
+    showError('ارتباط با سرور برقرار نشد. اینترنت خود را بررسی کنید.');
+  } finally {
+    submitBtn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+  }
+});
+
+
+// ================== شروع ==================
+buildDateStrip();

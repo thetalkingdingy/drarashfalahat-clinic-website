@@ -313,27 +313,102 @@
                     <!-- Booking Section -->
 <section class="booking-section">
   <h2 class="booking-title">نوبت‌دهی آنلاین</h2>
-  <p class="booking-subtitle">برای رزرو وقت ویزیت، یکی از سایت‌های زیر را انتخاب کنید:</p>
+  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نوبت‌دهی آنلاین | مطب تخصصی قلب و عروق</title>
 
-  <div class="booking-buttons">
-    <a
-      href="https://doctor-yab.ir/Search/45626/%D8%AF%DA%A9%D8%AA%D8%B1-%D8%A2%D8%B1%D8%B4-%D9%81%D9%84%D8%A7%D8%AD%D8%AA/"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="btn btn-primary"
-    >
-      رزرو از طریق دکتریاب
-    </a>
+  <!-- فونت وزیرمتن -->
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 
-    <a
-      href="https://doctoreto.com/doctor/dr-arash-felahat/MojbrG"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="btn btn-secondary"
-    >
-      رزرو از طریق دکترتو
-    </a>
-  </div>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== بخش نوبت‌دهی آنلاین ===== -->
+  <section id="booking-section">
+    <div class="booking-container">
+
+      <header class="booking-header">
+        <h2>نوبت‌دهی آنلاین</h2>
+        <p>برای رزرو نوبت ویزیت، فرم زیر را تکمیل کنید. ساعات کاری مطب: شنبه تا چهارشنبه، ۱۶:۰۰ تا ۲۱:۰۰</p>
+      </header>
+
+      <form id="booking-form" novalidate>
+
+        <!-- نام و نام خانوادگی -->
+        <div class="form-group">
+          <label for="patient-name">نام و نام خانوادگی</label>
+          <input
+            type="text"
+            id="patient-name"
+            name="patientName"
+            placeholder="مثال: علی محمدی"
+            autocomplete="name"
+            required
+          >
+          <span class="error-msg" id="name-error"></span>
+        </div>
+
+        <!-- شماره تماس -->
+        <div class="form-group">
+          <label for="patient-phone">شماره تماس</label>
+          <input
+            type="tel"
+            id="patient-phone"
+            name="patientPhone"
+            placeholder="مثال: ۰۹۱۴۱۲۳۴۵۶۷"
+            autocomplete="tel"
+            inputmode="tel"
+            maxlength="11"
+            required
+          >
+          <span class="error-msg" id="phone-error"></span>
+        </div>
+
+        <!-- انتخاب تاریخ (نوار هفت روز آینده - توسط جاوااسکریپت پر می‌شود) -->
+        <div class="form-group">
+          <label>انتخاب تاریخ</label>
+          <div id="date-strip" class="date-strip" aria-label="انتخاب روز نوبت"></div>
+          <span class="error-msg" id="date-error"></span>
+        </div>
+
+        <!-- انتخاب ساعت -->
+        <div class="form-group">
+          <label for="time-select">انتخاب ساعت</label>
+          <select id="time-select" name="appointmentTime" required disabled>
+            <option value="">ابتدا تاریخ را انتخاب کنید</option>
+          </select>
+          <span class="error-msg" id="time-error"></span>
+        </div>
+
+        <!-- دکمه ثبت -->
+        <button type="submit" id="submit-btn">
+          <span class="btn-text">ثبت نوبت</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+
+      </form>
+
+      <!-- پیام تأیید نوبت (پس از ثبت موفق نمایش داده می‌شود) -->
+      <div id="confirmation-box" class="confirmation-box" hidden>
+        <div class="confirmation-icon">✔</div>
+        <h3>نوبت شما با موفقیت ثبت شد!</h3>
+        <p id="confirmation-details"></p>
+        <p class="confirmation-note">لطفاً ۱۰ دقیقه قبل از ساعت نوبت در مطب حضور داشته باشید.</p>
+        <button type="button" id="new-booking-btn">ثبت نوبت جدید</button>
+      </div>
+
+      <!-- پیام خطای عمومی -->
+      <div id="global-error" class="global-error" hidden></div>
+
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+
+
 </section>
 
                 </div>
@@ -409,7 +484,7 @@
                         </div>
                         <div class="contact-details">
                             <h3>شماره تماس</h3>
-                            <a href="tel:09334510059" dir="ltr">۰۹۳۳۴۵۱۰۵۹</a>
+                            <a href="tel:09334510059" dir="ltr">۰۹۳۳۴۵۱۰۰۵۹</a>
                             <p class="contact-hint">شنبه تا چهارشنبه، ۱۶ تا ۲۱</p>
                         </div>
                     </div>
@@ -419,7 +494,7 @@
                         </div>
                         <div class="contact-details">
                             <h3>اینستاگرام</h3>
-                            <a href="https://instagram.com/drfalahat" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.instagram.com/dr.arash.falahat?igsh=MWV1bzl1NDRwbXc5bA==" target="_blank" rel="noopener noreferrer">
                                 instagram.com/drfalahat
                             </a>
                             <p class="contact-hint">آخرین اخبار و مطالب پزشکی</p>
@@ -507,21 +582,6 @@
                         <li>
                             <i class="fas fa-clock"></i>
                             <span>شنبه تا چهارشنبه | ۱۶–۲۱</span>
- <!-- ===== JAVASCRIPT FOR MOBILE MENU ===== -->
-        <script>
-            const hamburger = document.getElementById('hamburger');
-            const navLinks = document.getElementById('navLinks');
-
-            hamburger.addEventListener('click', () => {
-                hamburger.classList.toggle('active');
-                navLinks.classList.toggle('active');
-            });
-
-            // Close menu when a link is clicked
-            navLinks.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        </script>
+ 
     </body>
     </html>
